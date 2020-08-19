@@ -4,6 +4,7 @@ RUN gu install native-image
 COPY . /home/app/words
 WORKDIR /home/app/words
 
+RUN ./gradlew build
 RUN native-image --no-server -cp build/libs/words-*-all.jar
 
 FROM frolvlad/alpine-glibc
