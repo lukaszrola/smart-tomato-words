@@ -1,0 +1,5 @@
+micronaut:
+  application:
+    name: words
+content:
+  path: /content/words.json

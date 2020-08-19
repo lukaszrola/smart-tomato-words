@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.smart.tomato
+testFramework: kotlintest
+sourceLanguage: kotlin
+buildTool: gradle
+features: [annotation-api, app-name, docker, file-watch, graalvm, gradle, http-client, jib, kotlin, kotlin-application, kotlintest, logback, netty-server, openapi, readme, yaml]
