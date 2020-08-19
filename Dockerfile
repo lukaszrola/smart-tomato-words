@@ -6,7 +6,7 @@ WORKDIR /home/app/words
 
 RUN chmod +x gradlew
 RUN ./gradlew build
-RUN native-image --no-server -cp build/libs/words-*-all.jar
+RUN native-image --no-server -cp build/libs/words-*.jar
 
 FROM frolvlad/alpine-glibc
 RUN apk update && apk add libstdc++
