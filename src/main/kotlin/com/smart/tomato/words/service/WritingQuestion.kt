@@ -1,3 +1,8 @@
 package com.smart.tomato.words.service
 
-data class WritingQuestion(val question: String, val answers: List<String>)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class WritingQuestion(
+        @JsonProperty val question: String,
+        @JsonProperty val answers: List<String>
+)
