@@ -1,6 +1,6 @@
 package com.smart.tomato.words.service
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-data class WritingQuestion constructor(val question: String, val answers: List<String>)
+data class WritingQuestion @JsonCreator constructor(@JsonProperty("question")val question: String, @JsonProperty("answers") val answers: List<String>)
