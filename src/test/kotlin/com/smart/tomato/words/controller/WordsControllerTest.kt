@@ -21,7 +21,7 @@ import org.amshove.kluent.shouldBeEqualTo
 @MicronautTest
 class WordsControllerTest(@Client("/") private val client: RxHttpClient, private val questionsService: QuestionsService) : AnnotationSpec() {
 
-    private val EXPECTED_QUESTIONS = listOf(
+    private val expectedQuestions = listOf(
             WritingQuestion(
                     question = "First Question",
                     answers = listOf("first answer")
@@ -32,20 +32,22 @@ class WordsControllerTest(@Client("/") private val client: RxHttpClient, private
             )
     )
 
+    private val expectedNumberOfQuestions = 2
+
     @Test
     fun shouldReturnWritingQuestions() {
         val questionsServiceMock = getMock(questionsService)
         every {
-            questionsServiceMock.getWritingQuestions(any())
+            questionsServiceMock.getWritingQuestions(expectedNumberOfQuestions)
         } answers {
-            EXPECTED_QUESTIONS
+            expectedQuestions
         }
 
-        val request: HttpRequest<Any> = HttpRequest.GET("/words/writingQuestions")
+        val request: HttpRequest<Any> = HttpRequest.GET("/words/writingQuestions?numberOfQuestions=$expectedNumberOfQuestions")
         val body = client.toBlocking().retrieve(request, Argument.listOf(WritingQuestion::class.java))
 
-        verify(exactly = 1) { questionsServiceMock.getWritingQuestions(any()) }
-        body shouldBeEqualTo EXPECTED_QUESTIONS
+        verify(exactly = 1) { questionsServiceMock.getWritingQuestions(expectedNumberOfQuestions) }
+        body shouldBeEqualTo expectedQuestions
     }
 
     @MockBean(QuestionsServiceImpl::class)

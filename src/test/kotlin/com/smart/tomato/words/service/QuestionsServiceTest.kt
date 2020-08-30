@@ -15,26 +15,40 @@ internal class QuestionsServiceTest : BehaviorSpec({
     val questionsService: QuestionsService = QuestionsServiceImpl(wordsRepository)
 
     given("Words repository with one item") {
+        val motherMeaning = "pies"
+        val foreignMeaning = "dog"
+        val synonym = "first synonym"
+
         every{
             getMock(wordsRepository).words
         } answers {
             listOf(
                     Word(
                             id = 1,
-                            motherMeaning = "pies",
-                            foreignMeaning = "dog",
-                            synonyms = listOf("first synonym")
+                            motherMeaning = motherMeaning,
+                            foreignMeaning = foreignMeaning,
+                            synonyms = listOf(synonym)
                     )
             )
         }
 
-        `when`("Requested about one item") {
+        `when`("Requested about one writing question") {
             val result = questionsService.getWritingQuestions(1)
 
             then("Should return expected writing question") {
                 result shouldHaveSize 1
-                result[0].question shouldBeEqualTo  "pies"
-                result[0].answers shouldContainAll listOf("dog", "first synonym")
+                result[0].question shouldBeEqualTo  motherMeaning
+                result[0].answers shouldContainAll listOf(foreignMeaning, synonym)
+            }
+        }
+
+        `when`("Requested about one choice question") {
+            val result = questionsService.getChoiceQuestions(1, 1)
+
+            then("Should return expected choice question with one variant") {
+                result shouldHaveSize 1
+                result[0].question shouldBeEqualTo motherMeaning
+                result[0].variants shouldContainAll listOf(foreignMeaning)
             }
         }
     }
@@ -74,11 +88,21 @@ internal class QuestionsServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("Requested about four questions") {
+        `when`("Requested about four writing questions") {
             val result = questionsService.getWritingQuestions(4)
 
             then("Should return three writing questions") {
                 result shouldHaveSize 3
+            }
+        }
+
+        `when`("Requested about three choice questions with three variants"){
+            val result = questionsService.getChoiceQuestions(numberOfQuestions = 3, numberOfVariants = 3)
+            then("Should return three choice questions with three variants") {
+                result shouldHaveSize 3
+                result.forEach {choiceQuestion ->
+                    choiceQuestion.variants shouldHaveSize 3
+                }
             }
         }
     }

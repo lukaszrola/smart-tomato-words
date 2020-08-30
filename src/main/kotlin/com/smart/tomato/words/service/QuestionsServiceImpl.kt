@@ -19,4 +19,30 @@ internal class QuestionsServiceImpl(private val wordsRepository: WordsRepository
                     )
                 }
     }
+
+    override fun getChoiceQuestions(numberOfQuestions: Int, numberOfVariants: Int): List<ChoiceQuestion> {
+        val numberOfQuestionsToReturn = min(wordsRepository.words.size, numberOfQuestions)
+        return wordsRepository.words
+                .shuffled()
+                .subList(0, numberOfQuestionsToReturn)
+                .map {
+                    ChoiceQuestion(
+                            question = it.motherMeaning,
+                            correctAnswer = it.foreignMeaning,
+                            variants = calculateVariants(it.foreignMeaning, numberOfVariants)
+                    )
+                }
+    }
+
+    private fun calculateVariants(correctAnswer: String, numberOfVariants: Int): List<String> {
+        val invalidVariants = wordsRepository.words
+                .shuffled()
+                .asSequence()
+                .map { it.foreignMeaning }
+                .filter { it != correctAnswer }
+                .take(numberOfVariants)
+                .toList()
+
+        return (invalidVariants + correctAnswer).shuffled()
+    }
 }
