@@ -1,6 +1,7 @@
 package com.smart.tomato.words.controller
 
 
+import com.smart.tomato.words.service.ChoiceQuestion
 import com.smart.tomato.words.service.QuestionsService
 import com.smart.tomato.words.service.QuestionsServiceImpl
 import com.smart.tomato.words.service.WritingQuestion
@@ -16,12 +17,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Test
 
 
 @MicronautTest
 class WordsControllerTest(@Client("/") private val client: RxHttpClient, private val questionsService: QuestionsService) : AnnotationSpec() {
 
-    private val expectedQuestions = listOf(
+    private val expectedWritingQuestions = listOf(
             WritingQuestion(
                     question = "First Question",
                     answers = listOf("first answer")
@@ -31,27 +33,64 @@ class WordsControllerTest(@Client("/") private val client: RxHttpClient, private
                     answers = listOf("answer to second question")
             )
     )
-
+    private val expectedChoiceQuestions = listOf(
+            ChoiceQuestion(
+                    question = "First question",
+                    correctAnswer = "correct answer",
+                    variants = listOf("correct answer", "some invalid variant")
+            ),
+            ChoiceQuestion(
+                    question = "Second question",
+                    correctAnswer = "second correct answer",
+                    variants = listOf("second correct answer", "some invalid variant")
+            )
+    )
     private val expectedNumberOfQuestions = 2
+    private val expectedNumberOfVariants = 2
 
     @Test
-    fun shouldReturnWritingQuestions() {
+    internal fun shouldReturnWritingQuestions() {
         val questionsServiceMock = getMock(questionsService)
         every {
             questionsServiceMock.getWritingQuestions(expectedNumberOfQuestions)
         } answers {
-            expectedQuestions
+            expectedWritingQuestions
         }
 
         val request: HttpRequest<Any> = HttpRequest.GET("/words/writingQuestions?numberOfQuestions=$expectedNumberOfQuestions")
         val body = client.toBlocking().retrieve(request, Argument.listOf(WritingQuestion::class.java))
 
         verify(exactly = 1) { questionsServiceMock.getWritingQuestions(expectedNumberOfQuestions) }
-        body shouldBeEqualTo expectedQuestions
+        body shouldBeEqualTo expectedWritingQuestions
+    }
+
+    @Test
+    internal fun shouldReturnChoiceQuestions() {
+        val questionsServiceMock = getMock(questionsService)
+        every {
+            questionsServiceMock.getChoiceQuestions(
+                    numberOfQuestions = expectedNumberOfQuestions,
+                    numberOfVariants = expectedNumberOfVariants
+            )
+        } answers {
+            expectedChoiceQuestions
+        }
+
+        val request: HttpRequest<Any> = HttpRequest.GET(
+                "/words/choiceQuestions?" +
+                        "numberOfQuestions=$expectedNumberOfQuestions" +
+                        "&numberOfVariants=$expectedNumberOfVariants"
+        )
+        val body = client.toBlocking().retrieve(request, Argument.listOf(ChoiceQuestion::class.java))
+
+        verify(exactly = 1) {
+            questionsServiceMock.getChoiceQuestions(expectedNumberOfQuestions, expectedNumberOfVariants)
+        }
+        body shouldBeEqualTo expectedChoiceQuestions
     }
 
     @MockBean(QuestionsServiceImpl::class)
-    fun questionService(): QuestionsService {
+    internal fun questionService(): QuestionsService {
         return mockk()
     }
 }
